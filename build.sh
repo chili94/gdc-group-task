@@ -28,8 +28,8 @@ AWS_VERSION=$(aws --version | awk -F/ '{print $2}')
 MAJOR_VERSION=$(echo "$aws_version" | cut -d. -f1)
 REQUIRED_MAJOR_VERSION="2"
 
-if [[ "$MAJOR_VERSION" < "$required_version" ]]; then
-  echo "AWS CLI version is lower than $required_version. Updating AWS CLI..."
+if [[ "$MAJOR_VERSION" < "$REQUIRED_MAJOR_VERSION" ]]; then
+  echo "AWS CLI version is lower than $REQUIRED_MAJOR_VERSION. Updating AWS CLI..."
   # Update the AWS CLI to version 2
    sudo yum remove awscli -y
    sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -39,7 +39,7 @@ if [[ "$MAJOR_VERSION" < "$required_version" ]]; then
    sudo aws --version
   echo "AWS CLI has been updated to version 2."
 else
-  echo "AWS CLI version is already $aws_version, no update needed."
+  echo "AWS CLI version is already $AWS_VERSION, no update needed."
 fi
 
 #Checking docker
