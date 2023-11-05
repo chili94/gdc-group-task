@@ -16,6 +16,19 @@ check_terraform() {
   fi
 }
 
+check_kubectl() {
+  if ! command -v kubectl version &> /dev/null; then
+    echo "kubectl is not installed. Making instalation..."
+    sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+    sudo echo "$(<kubectl.sha256)  kubectl" | sha256sum --check
+    sudo install -o root -g root -m 0755 kubectl /usr/bin/kubectl
+    sudo rm -rf kubectl && rm -rf kubectl.sha256
+  else
+    echo "Kubectl is installed."
+  fi
+}
+
 check_eksctl() {
   if ! command -v eksctl &> /dev/null; then
     echo "eksctl is not installed. Making instalation..."
@@ -23,10 +36,9 @@ check_eksctl() {
     sudo sudo mv /tmp/eksctl /usr/bin
     eksctl version
   else
-    echo "Terraform is installed."
+    echo "Eksctl is installed."
   fi
 }
-
 
 terraform_init() {
   cd "$TERRAFORM_DIR" || exit
@@ -70,7 +82,8 @@ eks_configuration() {
 
 
 
-
+#Install kubctl
+check_kubectl
 
 
 echo "Preparing terraform"
@@ -100,7 +113,6 @@ fi
 echo "Preparing configuration for EKS cluster"
 sleep 2
 
-#sed -i -e "s/id:.*/id: $VPC_ID/; s/public-one:.*/public-one:\n        id: $SUBNET_A/; s/public-two:.*/public-two:\n        id: $SUBNET_B/" $EKS_YAML_FILE
 
 #Configure EKS Cluster
 eks_configuration
@@ -124,7 +136,7 @@ sleep 2
 
 eksctl create cluster -f $EKS_YAML_FILE
 
-
+aws eks update-kubeconfig --region us-east-1 --name cluster-eks3
 
 
 
