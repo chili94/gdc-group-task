@@ -137,6 +137,7 @@ eks_configuration
 
 
 EKS_YAML_FILE="eks/cluster.yaml"
+EKS_DEPLOY_YAML_FILE="eks-deploy/app.yaml"
 
 #replace the VPC ID and subnet values in the YAML file
 sed -i -e "s/id:.*/id: $VPC_ID/; /vpc_id/d; s/public-one:.*/public-one:\n        id: $SUBNET_A/; s/public-two:.*/public-two:\n        id: $SUBNET_B/" $EKS_YAML_FILE
@@ -157,3 +158,39 @@ eksctl create cluster -f $EKS_YAML_FILE
 
 #Connect to the Cluster
 aws eks update-kubeconfig --region us-east-1 --name cluster-eks3
+
+#adding image to the deplyment
+sed -i -e "/containers:/a\ \ \ \ - name: app-php\n\ \ \ \ \ \ image: $YOUR_DOCKERHUB_NAME/$IMAGE_NAME:$BUILD_VERSION" "$EKS_DEPLOY_YAML_FILE"
+
+#Deploy section
+INGRESS_CONTROLLER_URL="https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml"
+INGRESS_YAML="eks-deploy/ingress.yaml"
+APP_YAML="eks-deploy/app.yaml"
+
+kubectl apply -f "$INGRESS_CONTROLLER_URL"
+kubectl apply -f "$INGRESS_YAML"
+kubectl apply -f "$APP_YAML"
+
+
+kubectl_output=$(kubectl get svc)
+external_ip=$(echo "$kubectl_output" | awk 'NR>1 && $4 != "<none>" {print $4}')
+
+if [ -z "$external_ip" ]; then
+    echo "No valid External IP found."
+else
+    # Print the External IP with the desired message
+    echo "APP is ready on URL: $external_ip and use port 8080 with HTTP protocol"
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
