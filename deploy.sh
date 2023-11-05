@@ -161,6 +161,7 @@ aws eks update-kubeconfig --region us-east-1 --name cluster-eks3
 
 #adding image to the deplyment
 sed -i -e "/containers:/a\ \ \ \ - name: app-php\n\ \ \ \ \ \ image: $YOUR_DOCKERHUB_NAME/$IMAGE_NAME:$BUILD_VERSION" "$EKS_DEPLOY_YAML_FILE"
+sleep 2
 
 #Deploy section
 INGRESS_CONTROLLER_URL="https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml"
@@ -168,10 +169,12 @@ INGRESS_YAML="eks-deploy/ingress.yaml"
 APP_YAML="eks-deploy/app.yaml"
 
 kubectl apply -f "$INGRESS_CONTROLLER_URL"
+sleep 2
 kubectl apply -f "$INGRESS_YAML"
+sleep 2
 kubectl apply -f "$APP_YAML"
 
-
+sleep 10
 kubectl_output=$(kubectl get svc)
 external_ip=$(echo "$kubectl_output" | awk 'NR>1 && $4 != "<none>" {print $4}')
 
