@@ -152,6 +152,8 @@ sed -i '/public-two:/{:a;N;/id:/{N;s/id:/# id:/2};ba}' $EKS_YAML_FILE
 check_eksctl
 sleep 2
 
+#Create EKS Cluster
 eksctl create cluster -f $EKS_YAML_FILE
 
+#Connect to the Cluster
 aws eks update-kubeconfig --region us-east-1 --name cluster-eks3
