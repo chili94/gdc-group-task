@@ -160,7 +160,7 @@ eksctl create cluster -f $EKS_YAML_FILE
 aws eks update-kubeconfig --region us-east-1 --name cluster-eks3
 
 #adding image to the deplyment
-sed -i -e "/containers:/a\ \ \ \ - name: app-php\n\ \ \ \ \ \ image: $YOUR_DOCKERHUB_NAME/$IMAGE_NAME:$BUILD_VERSION" "$EKS_DEPLOY_YAML_FILE"
+sed -i -e "/containers:/a\ \ \ \ \ \ - name: app-php\n\ \ \ \ \ \ \ \ image: $YOUR_DOCKERHUB_NAME/$IMAGE_NAME:$BUILD_VERSION" "$EKS_DEPLOY_YAML_FILE"
 sleep 2
 
 #Deploy section
